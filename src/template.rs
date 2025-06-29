@@ -2,8 +2,6 @@ use convert_case::{Case, Casing};
 use regex::Regex;
 use std::collections::{HashMap, HashSet};
 
-
-
 #[derive(Debug, Clone)]
 pub struct TemplateProcessor {
     variables: HashMap<String, String>,
@@ -110,10 +108,7 @@ impl TemplateProcessor {
         // Replace patterns (order matters - more specific patterns first)
         let replacements = vec![
             // PascalCase with Scf prefix
-            (
-                format!(r"\bScf{pascal_var}\b"),
-                format!("Scf{pascal_val}"),
-            ),
+            (format!(r"\bScf{pascal_var}\b"), format!("Scf{pascal_val}")),
             // UPPER_SNAKE_CASE with SCF prefix
             (
                 format!(r"\bSCF_{upper_snake_var}\b"),
@@ -130,15 +125,9 @@ impl TemplateProcessor {
                 format!("SCF.{upper_dot_val}"),
             ),
             // snake_case with scf prefix
-            (
-                format!(r"\bscf_{snake_var}\b"),
-                format!("scf_{snake_val}"),
-            ),
+            (format!(r"\bscf_{snake_var}\b"), format!("scf_{snake_val}")),
             // kebab-case with scf prefix
-            (
-                format!(r"\bscf-{kebab_var}\b"),
-                format!("scf-{kebab_val}"),
-            ),
+            (format!(r"\bscf-{kebab_var}\b"), format!("scf-{kebab_val}")),
             // dot.case with scf prefix
             (
                 format!(r"\bscf\.{lower_dot_var}\b"),
@@ -175,8 +164,6 @@ impl TemplateProcessor {
             })
             .collect()
     }
-
-
 }
 
 #[cfg(test)]

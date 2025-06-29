@@ -148,12 +148,9 @@ fn contains_template_variables(text: &str) -> bool {
     false
 }
 
-
-
 #[cfg(test)]
 mod tests {
     use super::*;
-    
 
     #[test]
     fn test_contains_template_variables() {
@@ -164,6 +161,4 @@ mod tests {
         assert!(!contains_template_variables("regular text"));
         assert!(!contains_template_variables("scaffold"));
     }
-
-
 }
