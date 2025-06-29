@@ -111,45 +111,45 @@ impl TemplateProcessor {
         let replacements = vec![
             // PascalCase with Scf prefix
             (
-                format!(r"\bScf{}\b", pascal_var),
-                format!("Scf{}", pascal_val),
+                format!(r"\bScf{pascal_var}\b"),
+                format!("Scf{pascal_val}"),
             ),
             // UPPER_SNAKE_CASE with SCF prefix
             (
-                format!(r"\bSCF_{}\b", upper_snake_var),
-                format!("SCF_{}", upper_snake_val),
+                format!(r"\bSCF_{upper_snake_var}\b"),
+                format!("SCF_{upper_snake_val}"),
             ),
             // UPPER-KEBAB-CASE with SCF prefix
             (
-                format!(r"\bSCF-{}\b", upper_kebab_var),
-                format!("SCF-{}", upper_kebab_val),
+                format!(r"\bSCF-{upper_kebab_var}\b"),
+                format!("SCF-{upper_kebab_val}"),
             ),
             // UPPER.DOT.CASE with SCF prefix
             (
-                format!(r"\bSCF\.{}\b", upper_dot_var),
-                format!("SCF.{}", upper_dot_val),
+                format!(r"\bSCF\.{upper_dot_var}\b"),
+                format!("SCF.{upper_dot_val}"),
             ),
             // snake_case with scf prefix
             (
-                format!(r"\bscf_{}\b", snake_var),
-                format!("scf_{}", snake_val),
+                format!(r"\bscf_{snake_var}\b"),
+                format!("scf_{snake_val}"),
             ),
             // kebab-case with scf prefix
             (
-                format!(r"\bscf-{}\b", kebab_var),
-                format!("scf-{}", kebab_val),
+                format!(r"\bscf-{kebab_var}\b"),
+                format!("scf-{kebab_val}"),
             ),
             // dot.case with scf prefix
             (
-                format!(r"\bscf\.{}\b", lower_dot_var),
-                format!("scf.{}", lower_dot_val),
+                format!(r"\bscf\.{lower_dot_var}\b"),
+                format!("scf.{lower_dot_val}"),
             ),
             // lowercase flat with scf prefix
-            (format!(r"\bscf{}\b", flat_var), format!("scf{}", flat_val)),
+            (format!(r"\bscf{flat_var}\b"), format!("scf{flat_val}")),
             // uppercase flat with SCF prefix
             (
-                format!(r"\bSCF{}\b", upper_flat_var),
-                format!("SCF{}", upper_flat_val),
+                format!(r"\bSCF{upper_flat_var}\b"),
+                format!("SCF{upper_flat_val}"),
             ),
         ];
 

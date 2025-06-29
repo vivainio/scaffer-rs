@@ -14,7 +14,7 @@ pub fn extract_zip(zip_path: &Path, dest_dir: &Path) -> Result<()> {
     for i in 0..archive.len() {
         let mut file = archive
             .by_index(i)
-            .with_context(|| format!("Failed to read file at index {}", i))?;
+            .with_context(|| format!("Failed to read file at index {i}"))?;
 
         let outpath = dest_dir.join(file.name());
 

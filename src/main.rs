@@ -102,12 +102,12 @@ fn create_barrel_file() -> Result<()> {
             if let Some(file_name) = entry.file_name().to_str() {
                 if file_name.ends_with(".ts") && file_name != "index.ts" {
                     let module_name = file_name.trim_end_matches(".ts");
-                    exports.push(format!("export * from './{}';\n", module_name));
+                    exports.push(format!("export * from './{module_name}';\n"));
                 }
             }
         } else if entry.file_type().is_dir() {
             if let Some(dir_name) = entry.file_name().to_str() {
-                exports.push(format!("export * from './{}';\n", dir_name));
+                exports.push(format!("export * from './{dir_name}';\n"));
             }
         }
     }

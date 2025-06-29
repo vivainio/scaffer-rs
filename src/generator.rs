@@ -56,7 +56,7 @@ impl TemplateGenerator {
         for var_name in &required_vars {
             if !var_map.contains_key(var_name) {
                 let value: String = Input::new()
-                    .with_prompt(format!("Enter value for '{}'", var_name))
+                    .with_prompt(format!("Enter value for '{var_name}'"))
                     .interact_text()?;
                 var_map.insert(var_name.clone(), value);
             }
@@ -84,10 +84,10 @@ impl TemplateGenerator {
     }
 
     fn download_template(&self, url: &str) -> Result<PathBuf> {
-        println!("Downloading template from {}...", url);
+        println!("Downloading template from {url}...");
 
         let response = reqwest::blocking::get(url)
-            .with_context(|| format!("Failed to download template from {}", url))?;
+            .with_context(|| format!("Failed to download template from {url}"))?;
 
         if !response.status().is_success() {
             bail!("Failed to download template: HTTP {}", response.status());
@@ -221,7 +221,7 @@ impl TemplateGenerator {
                         format!("Failed to create directory: {}", dest_path.display())
                     })?;
                 }
-                println!("Created directory: {}", processed_rel_path);
+                println!("Created directory: {processed_rel_path}");
             } else if entry.file_type().is_file() {
                 // Skip scaffer_init.py
                 if src_path.file_name() == Some(std::ffi::OsStr::new("scaffer_init.py")) {
@@ -231,21 +231,20 @@ impl TemplateGenerator {
                 // Check if file already exists
                 if dest_path.exists() && !force {
                     if dry_run {
-                        println!("Would skip existing file: {}", processed_rel_path);
+                        println!("Would skip existing file: {processed_rel_path}");
                         files_skipped += 1;
                         continue;
                     }
 
                     let overwrite = Confirm::new()
                         .with_prompt(format!(
-                            "File '{}' already exists. Overwrite?",
-                            processed_rel_path
+                            "File '{processed_rel_path}' already exists. Overwrite?"
                         ))
                         .default(false)
                         .interact()?;
 
                     if !overwrite {
-                        println!("Skipped: {}", processed_rel_path);
+                        println!("Skipped: {processed_rel_path}");
                         files_skipped += 1;
                         continue;
                     }
@@ -272,16 +271,16 @@ impl TemplateGenerator {
                     })?;
                 }
 
-                println!("Created file: {}", processed_rel_path);
+                println!("Created file: {processed_rel_path}");
                 files_created += 1;
             }
         }
 
         println!("\nTemplate processing complete!");
-        println!("Files created: {}", files_created);
+        println!("Files created: {files_created}");
 
         if files_skipped > 0 {
-            println!("Files skipped: {}", files_skipped);
+            println!("Files skipped: {files_skipped}");
         }
 
         if dry_run {
