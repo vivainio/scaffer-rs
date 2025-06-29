@@ -1,0 +1,8 @@
+{
+    "scaffer": [
+        "examples"
+    ],
+    "scaffer_template_urls": {
+        "example-remote": "https://github.com/vivainio/scaffer-templates/archive/main.zip"
+    }
+} 

@@ -1,0 +1,21 @@
+[package]
+name = "scf-project"
+version = "0.1.0"
+edition = "2024"
+description = "A ScfProject library"
+authors = ["ScfAuthor <scf-author@example.com>"]
+license = "MIT"
+repository = "https://github.com/scf-author/scf-project"
+keywords = ["scf-project", "library"]
+
+[dependencies]
+serde = { version = "1.0", features = ["derive"], optional = true }
+tokio = { version = "1.0", features = ["full"], optional = true }
+
+[features]
+default = []
+serde = ["dep:serde"]
+async = ["dep:tokio"]
+
+[dev-dependencies]
+tokio-test = "0.4" 
