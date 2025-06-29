@@ -86,14 +86,15 @@ impl TemplateGenerator {
     fn download_template(&self, url: &str) -> Result<PathBuf> {
         println!("Downloading template from {url}...");
 
-        let response = reqwest::blocking::get(url)
+        let response = minreq::get(url)
+            .send()
             .with_context(|| format!("Failed to download template from {url}"))?;
 
-        if !response.status().is_success() {
-            bail!("Failed to download template: HTTP {}", response.status());
+        if response.status_code != 200 {
+            bail!("Failed to download template: HTTP {}", response.status_code);
         }
 
-        let bytes = response.bytes().context("Failed to read template data")?;
+        let bytes = response.into_bytes();
 
         // Create temporary directory
         let temp_dir = TempDir::new().context("Failed to create temporary directory")?;
