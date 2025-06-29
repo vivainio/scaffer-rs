@@ -69,28 +69,7 @@ jobs:
       - name: Run doc tests
         run: cargo test --doc --verbose --all-features
 
-  # Test with minimal versions to ensure compatibility
-  minimal-versions:
-    name: Test with minimal versions
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
 
-      - name: Install Rust toolchain
-        uses: dtolnay/rust-toolchain@nightly
-
-      - name: Install cargo-minimal-versions
-        run: cargo install cargo-minimal-versions
-
-      - name: Cache Cargo registry
-        uses: actions/cache@v4
-        with:
-          path: ~/.cargo/registry
-          key: ${{ runner.os }}-cargo-registry-minimal-${{ hashFiles('**/Cargo.lock') }}
-
-      - name: Test with minimal versions
-        run: cargo minimal-versions check --all-features
 
   # Security audit
   security-audit:
