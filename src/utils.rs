@@ -148,33 +148,12 @@ fn contains_template_variables(text: &str) -> bool {
     false
 }
 
-/// Normalize a path string for cross-platform compatibility
-pub fn normalize_path(path: &str) -> String {
-    path.replace('\\', "/")
-}
 
-/// Check if a string is a valid URL
-pub fn is_url(s: &str) -> bool {
-    s.starts_with("http://") || s.starts_with("https://")
-}
-
-/// Sanitize a filename by removing or replacing invalid characters
-pub fn sanitize_filename(filename: &str) -> String {
-    filename
-        .chars()
-        .map(|c| match c {
-            '<' | '>' | ':' | '"' | '|' | '?' | '*' => '_',
-            '/' | '\\' => '_',
-            c if c.is_control() => '_',
-            c => c,
-        })
-        .collect()
-}
 
 #[cfg(test)]
 mod tests {
     use super::*;
-    use tempfile::TempDir;
+    
 
     #[test]
     fn test_contains_template_variables() {
@@ -186,18 +165,5 @@ mod tests {
         assert!(!contains_template_variables("scaffold"));
     }
 
-    #[test]
-    fn test_sanitize_filename() {
-        assert_eq!(sanitize_filename("my<file>name"), "my_file_name");
-        assert_eq!(sanitize_filename("path/to/file"), "path_to_file");
-        assert_eq!(sanitize_filename("normal_file.txt"), "normal_file.txt");
-    }
 
-    #[test]
-    fn test_is_url() {
-        assert!(is_url("https://example.com"));
-        assert!(is_url("http://localhost:8080"));
-        assert!(!is_url("file.zip"));
-        assert!(!is_url("/path/to/file"));
-    }
 }

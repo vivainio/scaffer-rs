@@ -2,11 +2,7 @@ use convert_case::{Case, Casing};
 use regex::Regex;
 use std::collections::{HashMap, HashSet};
 
-#[derive(Debug, Clone)]
-pub struct TemplateVariable {
-    pub name: String,
-    pub value: Option<String>,
-}
+
 
 #[derive(Debug, Clone)]
 pub struct TemplateProcessor {
@@ -180,14 +176,7 @@ impl TemplateProcessor {
             .collect()
     }
 
-    /// Get list of variables that need values
-    pub fn get_missing_variables(&self, required_vars: &HashSet<String>) -> Vec<String> {
-        required_vars
-            .iter()
-            .filter(|var| !self.variables.contains_key(*var))
-            .cloned()
-            .collect()
-    }
+
 }
 
 #[cfg(test)]

@@ -12,15 +12,13 @@ use walkdir::WalkDir;
 
 pub struct TemplateGenerator {
     config: ScafferConfig,
-    processor: TemplateProcessor,
 }
 
 impl TemplateGenerator {
     pub fn new() -> Self {
         let config = ScafferConfig::load().unwrap_or_default();
-        let processor = TemplateProcessor::new();
 
-        Self { config, processor }
+        Self { config }
     }
 
     pub fn generate(
