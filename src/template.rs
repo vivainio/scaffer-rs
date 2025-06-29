@@ -1,7 +1,6 @@
+use convert_case::{Case, Casing};
 use regex::Regex;
 use std::collections::{HashMap, HashSet};
-use convert_case::{Case, Casing};
-
 
 #[derive(Debug, Clone)]
 pub struct TemplateVariable {
@@ -115,31 +114,47 @@ impl TemplateProcessor {
         // Replace patterns (order matters - more specific patterns first)
         let replacements = vec![
             // PascalCase with Scf prefix
-            (format!(r"\bScf{}\b", pascal_var), format!("Scf{}", pascal_val)),
-            
+            (
+                format!(r"\bScf{}\b", pascal_var),
+                format!("Scf{}", pascal_val),
+            ),
             // UPPER_SNAKE_CASE with SCF prefix
-            (format!(r"\bSCF_{}\b", upper_snake_var), format!("SCF_{}", upper_snake_val)),
-            
+            (
+                format!(r"\bSCF_{}\b", upper_snake_var),
+                format!("SCF_{}", upper_snake_val),
+            ),
             // UPPER-KEBAB-CASE with SCF prefix
-            (format!(r"\bSCF-{}\b", upper_kebab_var), format!("SCF-{}", upper_kebab_val)),
-            
+            (
+                format!(r"\bSCF-{}\b", upper_kebab_var),
+                format!("SCF-{}", upper_kebab_val),
+            ),
             // UPPER.DOT.CASE with SCF prefix
-            (format!(r"\bSCF\.{}\b", upper_dot_var), format!("SCF.{}", upper_dot_val)),
-            
+            (
+                format!(r"\bSCF\.{}\b", upper_dot_var),
+                format!("SCF.{}", upper_dot_val),
+            ),
             // snake_case with scf prefix
-            (format!(r"\bscf_{}\b", snake_var), format!("scf_{}", snake_val)),
-            
+            (
+                format!(r"\bscf_{}\b", snake_var),
+                format!("scf_{}", snake_val),
+            ),
             // kebab-case with scf prefix
-            (format!(r"\bscf-{}\b", kebab_var), format!("scf-{}", kebab_val)),
-            
+            (
+                format!(r"\bscf-{}\b", kebab_var),
+                format!("scf-{}", kebab_val),
+            ),
             // dot.case with scf prefix
-            (format!(r"\bscf\.{}\b", lower_dot_var), format!("scf.{}", lower_dot_val)),
-            
+            (
+                format!(r"\bscf\.{}\b", lower_dot_var),
+                format!("scf.{}", lower_dot_val),
+            ),
             // lowercase flat with scf prefix
             (format!(r"\bscf{}\b", flat_var), format!("scf{}", flat_val)),
-            
             // uppercase flat with SCF prefix
-            (format!(r"\bSCF{}\b", upper_flat_var), format!("SCF{}", upper_flat_val)),
+            (
+                format!(r"\bSCF{}\b", upper_flat_var),
+                format!("SCF{}", upper_flat_val),
+            ),
         ];
 
         for (pattern, replacement) in replacements {
@@ -154,7 +169,7 @@ impl TemplateProcessor {
     /// Process a file path by replacing variables in the path components
     pub fn process_path(&self, path: &str) -> String {
         let processed = self.process_text(path);
-        
+
         // Clean up any invalid path characters that might result from replacement
         processed
             .chars()
@@ -200,7 +215,14 @@ mod tests {
 
         // The processor extracts all variations but normalizes them to kebab-case
         // We should see the normalized versions of the different variable patterns
-        let expected = vec!["my-project", "my.project", "myproject", "other-var", "other.var", "othervar"];
+        let expected = vec![
+            "my-project",
+            "my.project",
+            "myproject",
+            "other-var",
+            "other.var",
+            "othervar",
+        ];
         assert_eq!(vars, expected);
     }
 
@@ -227,4 +249,4 @@ mod tests {
 
         assert_eq!(result, "src/ScfMyApp/scf-my-app.rs");
     }
-} 
+}

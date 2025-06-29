@@ -2,13 +2,13 @@ use crate::config::ScafferConfig;
 use crate::template::TemplateProcessor;
 use crate::utils;
 
-use anyhow::{Result, Context, bail};
+use anyhow::{Context, Result, bail};
+use dialoguer::{Confirm, Input, Select};
 use std::collections::{HashMap, HashSet};
 use std::fs;
 use std::path::{Path, PathBuf};
-use walkdir::WalkDir;
-use dialoguer::{Input, Select, Confirm};
 use tempfile::TempDir;
+use walkdir::WalkDir;
 
 pub struct TemplateGenerator {
     config: ScafferConfig,
@@ -19,7 +19,7 @@ impl TemplateGenerator {
     pub fn new() -> Self {
         let config = ScafferConfig::load().unwrap_or_default();
         let processor = TemplateProcessor::new();
-        
+
         Self { config, processor }
     }
 
@@ -36,11 +36,12 @@ impl TemplateGenerator {
         };
 
         // Check if it's a URL
-        let template_path = if template_name.starts_with("http://") || template_name.starts_with("https://") {
-            self.download_template(&template_name)?
-        } else {
-            self.find_template(&template_name)?
-        };
+        let template_path =
+            if template_name.starts_with("http://") || template_name.starts_with("https://") {
+                self.download_template(&template_name)?
+            } else {
+                self.find_template(&template_name)?
+            };
 
         // Parse command-line variables
         let mut var_map = HashMap::new();
@@ -52,7 +53,7 @@ impl TemplateGenerator {
 
         // Scan template for variables
         let required_vars = self.scan_template_variables(&template_path)?;
-        
+
         // Prompt for missing variables
         for var_name in &required_vars {
             if !var_map.contains_key(var_name) {
@@ -71,7 +72,7 @@ impl TemplateGenerator {
 
     fn prompt_for_template(&self) -> Result<String> {
         let templates = self.config.find_templates()?;
-        
+
         if templates.is_empty() {
             bail!("No templates found. Run 'scaffer setup' to configure template directories.");
         }
@@ -86,36 +87,31 @@ impl TemplateGenerator {
 
     fn download_template(&self, url: &str) -> Result<PathBuf> {
         println!("Downloading template from {}...", url);
-        
+
         let response = reqwest::blocking::get(url)
             .with_context(|| format!("Failed to download template from {}", url))?;
-        
+
         if !response.status().is_success() {
             bail!("Failed to download template: HTTP {}", response.status());
         }
 
-        let bytes = response.bytes()
-            .context("Failed to read template data")?;
+        let bytes = response.bytes().context("Failed to read template data")?;
 
         // Create temporary directory
-        let temp_dir = TempDir::new()
-            .context("Failed to create temporary directory")?;
-        
+        let temp_dir = TempDir::new().context("Failed to create temporary directory")?;
+
         let zip_path = temp_dir.path().join("template.zip");
-        fs::write(&zip_path, bytes)
-            .context("Failed to write template zip file")?;
+        fs::write(&zip_path, bytes).context("Failed to write template zip file")?;
 
         // Extract zip file
         let extract_dir = temp_dir.path().join("extracted");
-        fs::create_dir_all(&extract_dir)
-            .context("Failed to create extraction directory")?;
+        fs::create_dir_all(&extract_dir).context("Failed to create extraction directory")?;
 
-        utils::extract_zip(&zip_path, &extract_dir)
-            .context("Failed to extract template zip")?;
+        utils::extract_zip(&zip_path, &extract_dir).context("Failed to extract template zip")?;
 
         // Find the actual template directory (might be nested)
         let template_dir = utils::find_template_root(&extract_dir)?;
-        
+
         Ok(template_dir)
     }
 
@@ -160,7 +156,7 @@ impl TemplateGenerator {
             .filter_map(|e| e.ok())
         {
             let path = entry.path();
-            
+
             // Extract variables from file path
             if let Some(path_str) = path.to_str() {
                 let path_vars = processor.extract_variables(path_str);
@@ -189,11 +185,10 @@ impl TemplateGenerator {
         let mut processor = TemplateProcessor::new();
         processor.set_variables(variables);
 
-        let current_dir = std::env::current_dir()
-            .context("Failed to get current directory")?;
+        let current_dir = std::env::current_dir().context("Failed to get current directory")?;
 
         println!("Processing template from: {}", template_path.display());
-        
+
         if dry_run {
             println!("DRY RUN - No files will be created");
         }
@@ -206,14 +201,15 @@ impl TemplateGenerator {
             .filter_map(|e| e.ok())
         {
             let src_path = entry.path();
-            
+
             // Skip the template root directory itself
             if src_path == template_path {
                 continue;
             }
 
             // Calculate relative path from template root
-            let rel_path = src_path.strip_prefix(template_path)
+            let rel_path = src_path
+                .strip_prefix(template_path)
                 .context("Failed to calculate relative path")?;
 
             // Process the path with variable substitution
@@ -223,8 +219,9 @@ impl TemplateGenerator {
             if entry.file_type().is_dir() {
                 // Create directory
                 if !dry_run {
-                    fs::create_dir_all(&dest_path)
-                        .with_context(|| format!("Failed to create directory: {}", dest_path.display()))?;
+                    fs::create_dir_all(&dest_path).with_context(|| {
+                        format!("Failed to create directory: {}", dest_path.display())
+                    })?;
                 }
                 println!("Created directory: {}", processed_rel_path);
             } else if entry.file_type().is_file() {
@@ -242,33 +239,39 @@ impl TemplateGenerator {
                     }
 
                     let overwrite = Confirm::new()
-                        .with_prompt(format!("File '{}' already exists. Overwrite?", processed_rel_path))
+                        .with_prompt(format!(
+                            "File '{}' already exists. Overwrite?",
+                            processed_rel_path
+                        ))
                         .default(false)
                         .interact()?;
 
                     if !overwrite {
                         println!("Skipped: {}", processed_rel_path);
                         files_skipped += 1;
-                        continue;    
+                        continue;
                     }
                 }
 
                 // Read and process file content
-                let content = fs::read_to_string(src_path)
-                    .with_context(|| format!("Failed to read template file: {}", src_path.display()))?;
+                let content = fs::read_to_string(src_path).with_context(|| {
+                    format!("Failed to read template file: {}", src_path.display())
+                })?;
 
                 let processed_content = processor.process_text(&content);
 
                 if !dry_run {
                     // Ensure parent directory exists
                     if let Some(parent) = dest_path.parent() {
-                        fs::create_dir_all(parent)
-                            .with_context(|| format!("Failed to create parent directory: {}", parent.display()))?;
+                        fs::create_dir_all(parent).with_context(|| {
+                            format!("Failed to create parent directory: {}", parent.display())
+                        })?;
                     }
 
                     // Write processed file
-                    fs::write(&dest_path, processed_content)
-                        .with_context(|| format!("Failed to write file: {}", dest_path.display()))?;
+                    fs::write(&dest_path, processed_content).with_context(|| {
+                        format!("Failed to write file: {}", dest_path.display())
+                    })?;
                 }
 
                 println!("Created file: {}", processed_rel_path);
@@ -278,7 +281,7 @@ impl TemplateGenerator {
 
         println!("\nTemplate processing complete!");
         println!("Files created: {}", files_created);
-        
+
         if files_skipped > 0 {
             println!("Files skipped: {}", files_skipped);
         }
@@ -289,4 +292,4 @@ impl TemplateGenerator {
 
         Ok(())
     }
-} 
+}

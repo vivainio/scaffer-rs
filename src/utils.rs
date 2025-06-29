@@ -1,4 +1,4 @@
-use anyhow::{Result, Context};
+use anyhow::{Context, Result};
 use std::fs;
 use std::path::{Path, PathBuf};
 
@@ -8,14 +8,14 @@ use zip::ZipArchive;
 pub fn extract_zip(zip_path: &Path, dest_dir: &Path) -> Result<()> {
     let file = fs::File::open(zip_path)
         .with_context(|| format!("Failed to open zip file: {}", zip_path.display()))?;
-    
-    let mut archive = ZipArchive::new(file)
-        .context("Failed to read zip archive")?;
+
+    let mut archive = ZipArchive::new(file).context("Failed to read zip archive")?;
 
     for i in 0..archive.len() {
-        let mut file = archive.by_index(i)
+        let mut file = archive
+            .by_index(i)
             .with_context(|| format!("Failed to read file at index {}", i))?;
-        
+
         let outpath = dest_dir.join(file.name());
 
         if file.name().ends_with('/') {
@@ -25,13 +25,14 @@ pub fn extract_zip(zip_path: &Path, dest_dir: &Path) -> Result<()> {
         } else {
             // File
             if let Some(parent) = outpath.parent() {
-                fs::create_dir_all(parent)
-                    .with_context(|| format!("Failed to create parent directory: {}", parent.display()))?;
+                fs::create_dir_all(parent).with_context(|| {
+                    format!("Failed to create parent directory: {}", parent.display())
+                })?;
             }
 
             let mut outfile = fs::File::create(&outpath)
                 .with_context(|| format!("Failed to create file: {}", outpath.display()))?;
-            
+
             std::io::copy(&mut file, &mut outfile)
                 .with_context(|| format!("Failed to extract file: {}", outpath.display()))?;
         }
@@ -54,7 +55,7 @@ pub fn find_template_root(extract_dir: &Path) -> Result<PathBuf> {
     {
         let entry = entry?;
         let path = entry.path();
-        
+
         if path.is_dir() && is_template_directory(&path)? {
             return Ok(path);
         }
@@ -67,7 +68,7 @@ pub fn find_template_root(extract_dir: &Path) -> Result<PathBuf> {
     {
         let entry = entry?;
         let path = entry.path();
-        
+
         if path.is_dir() {
             return Ok(path);
         }
@@ -123,17 +124,17 @@ fn is_template_directory(dir: &Path) -> Result<bool> {
 /// Check if text contains scaffer template variables
 fn contains_template_variables(text: &str) -> bool {
     use regex::Regex;
-    
+
     let patterns = [
-        r"\bScf[A-Z][a-zA-Z0-9]*\b",        // ScfMyvar
-        r"\bSCF_[A-Z][A-Z0-9_]*\b",        // SCF_MYVAR
-        r"\bSCF-[A-Z][A-Z0-9-]*\b",        // SCF-MYVAR
-        r"\bSCF\.[A-Z][A-Z0-9\.]*\b",      // SCF.MYVAR
-        r"\bscf_[a-z][a-z0-9_]*\b",        // scf_myvar
-        r"\bscf-[a-z][a-z0-9-]*\b",        // scf-myvar
-        r"\bscf\.[a-z][a-z0-9\.]*\b",      // scf.myvar
-        r"\bscf[a-z][a-z0-9]*\b",          // scfmyvar
-        r"\bSCF[A-Z][A-Z0-9]*\b",          // SCFMYVAR
+        r"\bScf[A-Z][a-zA-Z0-9]*\b",  // ScfMyvar
+        r"\bSCF_[A-Z][A-Z0-9_]*\b",   // SCF_MYVAR
+        r"\bSCF-[A-Z][A-Z0-9-]*\b",   // SCF-MYVAR
+        r"\bSCF\.[A-Z][A-Z0-9\.]*\b", // SCF.MYVAR
+        r"\bscf_[a-z][a-z0-9_]*\b",   // scf_myvar
+        r"\bscf-[a-z][a-z0-9-]*\b",   // scf-myvar
+        r"\bscf\.[a-z][a-z0-9\.]*\b", // scf.myvar
+        r"\bscf[a-z][a-z0-9]*\b",     // scfmyvar
+        r"\bSCF[A-Z][A-Z0-9]*\b",     // SCFMYVAR
     ];
 
     for pattern in &patterns {
@@ -199,4 +200,4 @@ mod tests {
         assert!(!is_url("file.zip"));
         assert!(!is_url("/path/to/file"));
     }
-} 
+}

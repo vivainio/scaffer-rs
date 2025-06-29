@@ -1,8 +1,8 @@
+use anyhow::{Context, Result};
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::fs;
 use std::path::PathBuf;
-use anyhow::{Result, Context};
 
 #[derive(Debug, Clone, Serialize, Deserialize, Default)]
 pub struct ScafferConfig {
@@ -24,13 +24,15 @@ impl ScafferConfig {
         if self.scaffer_template_urls.is_none() {
             self.scaffer_template_urls = Some(HashMap::new());
         }
-        self.scaffer_template_urls.as_mut().unwrap().insert(name, url);
+        self.scaffer_template_urls
+            .as_mut()
+            .unwrap()
+            .insert(name, url);
     }
 
     /// Load scaffer configuration from current directory or parent directories
     pub fn load() -> Result<Self> {
-        let mut current_dir = std::env::current_dir()
-            .context("Failed to get current directory")?;
+        let mut current_dir = std::env::current_dir().context("Failed to get current directory")?;
 
         loop {
             // Try scaffer.json first
@@ -47,7 +49,7 @@ impl ScafferConfig {
             if package_json.exists() {
                 let content = fs::read_to_string(&package_json)
                     .with_context(|| format!("Failed to read {}", package_json.display()))?;
-                
+
                 if let Ok(package_data) = serde_json::from_str::<serde_json::Value>(&content) {
                     if let Some(scaffer_config) = package_data.get("scaffer") {
                         if let Ok(config) = serde_json::from_value::<Self>(scaffer_config.clone()) {
@@ -71,8 +73,7 @@ impl ScafferConfig {
 
     /// Load global scaffer configuration from user's home directory
     pub fn load_global() -> Result<Self> {
-        let home_dir = dirs::home_dir()
-            .context("Failed to get home directory")?;
+        let home_dir = dirs::home_dir().context("Failed to get home directory")?;
         let global_config_path = home_dir.join(".scaffer.json");
 
         if global_config_path.exists() {
@@ -87,13 +88,12 @@ impl ScafferConfig {
 
     /// Save global scaffer configuration to user's home directory
     pub fn save_global(&self) -> Result<()> {
-        let home_dir = dirs::home_dir()
-            .context("Failed to get home directory")?;
+        let home_dir = dirs::home_dir().context("Failed to get home directory")?;
         let global_config_path = home_dir.join(".scaffer.json");
 
-        let content = serde_json::to_string_pretty(self)
-            .context("Failed to serialize configuration")?;
-        
+        let content =
+            serde_json::to_string_pretty(self).context("Failed to serialize configuration")?;
+
         fs::write(&global_config_path, content)
             .with_context(|| format!("Failed to write {}", global_config_path.display()))?;
 
@@ -165,4 +165,4 @@ impl ScafferConfig {
         templates.dedup();
         Ok(templates)
     }
-} 
+}
