@@ -66,9 +66,6 @@ jobs:
       - name: Run tests
         run: cargo test --verbose --all-features
 
-      - name: Run doc tests
-        run: cargo test --doc --verbose --all-features
-
 
 
   # Security audit
